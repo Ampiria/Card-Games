@@ -17,10 +17,12 @@ public class BlackjackRules implements Rules {
     private final int SUBSEQUENT_DEAL = 1;
     private Player dealer;
     private Scanner sc;
+    private boolean allBusted;
 
     BlackjackRules() {
         dealer = new Player(0);
         sc = new Scanner(System.in);
+        allBusted = false;
     }
 
     @Override
@@ -68,7 +70,7 @@ public class BlackjackRules implements Rules {
     private Optional dealerTurn(Deck deck) {
         Optional result = Optional.empty();
         int score = dealerScore(dealer.getHand());
-        while (score < 17) {
+        while (!allBusted && score < 17) {
             dealToPlayer(dealer, deck, SUBSEQUENT_DEAL);
             score = dealerScore(dealer.getHand());
         }
@@ -80,7 +82,7 @@ public class BlackjackRules implements Rules {
 
     private void evaluateRound(Player player) {
         if (handCompare(player.getHand(), dealer.getHand()).equals(Order.GREATER) ||
-                (scoreHand(player.getHand()) == 21 && scoreHand(dealer.getHand()) != 21)) {
+                (scoreHand(player.getHand()) == 21 && dealerScore(dealer.getHand()) != 21)) {
             player.reward((player.getBet() * 3) / 2);
         }
         System.out.println("Your Score: " + scoreHand(player.getHand()));
@@ -109,6 +111,10 @@ public class BlackjackRules implements Rules {
                 takeTurn(p, deck);
             }
         }
+        allBusted = true;
+        for (Player player : players) {
+            if (!player.isBusted()) allBusted = false;
+        }
         if (dealerTurn(deck).equals(Optional.empty())) {
             dealer.clearHand();
         }
@@ -131,6 +137,7 @@ public class BlackjackRules implements Rules {
             case "hit":
                 dealToPlayer(player, deck, SUBSEQUENT_DEAL);
                 System.out.println("Hand: " + player.handString(player.getHand()));
+                System.out.println("Score: " + scoreHand(player.getHand()));
                 System.out.println("Dealers Visible Card: " + dealer.getHand().get(0).cardString());
                 return askPlayer(player, deck);
             case "stay":
@@ -153,6 +160,7 @@ public class BlackjackRules implements Rules {
     public void takeTurn(Player player, Deck deck) {
         System.out.println("Wallet: " + player.getWallet());
         System.out.println("Hand: " + player.handString(player.getHand()));
+        System.out.println("Score: " + scoreHand(player.getHand()));
         System.out.println("Dealers Visible Card: " + dealer.getHand().get(0).cardString());
         bet(player);
         Optional result = askPlayer(player, deck);

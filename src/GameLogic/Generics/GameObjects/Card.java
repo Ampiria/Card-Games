@@ -35,6 +35,8 @@ public class Card {
             case Four:
                 return 4;
             case Five:
+                return 5;
+            case Six:
                 return 6;
             case Seven:
                 return 7;
