@@ -131,7 +131,7 @@ public class BlackjackRules implements Rules {
         dealToAll(players, deck);
     }
 
-    private Optional actOnDecision(Player player, Deck deck, String decision) {
+    private Optional actOnDecision(Player player, Deck deck, String decision, int score) {
         decision = decision.toLowerCase();
         switch (decision) {
             case "hit":
@@ -141,7 +141,7 @@ public class BlackjackRules implements Rules {
                 System.out.println("Dealers Visible Card: " + dealer.getHand().get(0).cardString());
                 return askPlayer(player, deck);
             case "stay":
-                return Optional.of(scoreHand(player.getHand()));
+                return Optional.of(score);
         }
         return Optional.empty();
     }
@@ -153,7 +153,7 @@ public class BlackjackRules implements Rules {
         }
         System.out.println("Would you like to hit or stay?");
         String decision = sc.next();
-        return actOnDecision(player, deck, decision);
+        return actOnDecision(player, deck, decision, score);
     }
 
     @Override
@@ -186,8 +186,10 @@ public class BlackjackRules implements Rules {
 
     @Override
     public Order handCompare(List<Card> h1, List<Card> h2) {
-        if (scoreHand(h1) > scoreHand(h2)) return Order.GREATER;
-        else if (scoreHand(h1) < scoreHand(h2)) return Order.LESS;
+        int h1score = scoreHand(h1);
+        int h2score = scoreHand(h2);
+        if (h1score > h2score) return Order.GREATER;
+        else if (h1score < h2score) return Order.LESS;
         return Order.EQUAL;
     }
 }
