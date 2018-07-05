@@ -26,7 +26,6 @@ public class Player {
 
     public void bet(int x) {
         bet = x;
-        wallet -= x;
     }
 
     public String handString(List<Card> hand) {
@@ -56,6 +55,11 @@ public class Player {
 
     public boolean isBusted() {
         return busted;
+    }
+
+    public void lostRound(){
+        wallet -= bet;
+        bet = 0;
     }
 
     public void setBusted(boolean busted) {

@@ -7,10 +7,7 @@ import GameLogic.Generics.Interfaces.Rules;
 import GameLogic.Generics.Types.Order;
 import GameLogic.Generics.Types.Value;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 
 public class BlackjackRules implements Rules {
     private final int INITIAL_DEAL = 2;
@@ -84,6 +81,8 @@ public class BlackjackRules implements Rules {
         if (handCompare(player.getHand(), dealer.getHand()).equals(Order.GREATER) ||
                 (scoreHand(player.getHand()) == 21 && dealerScore(dealer.getHand()) != 21)) {
             player.reward((player.getBet() * 3) / 2);
+        }else{
+            player.lostRound();
         }
         System.out.println("Your Score: " + scoreHand(player.getHand()));
     }
@@ -146,10 +145,37 @@ public class BlackjackRules implements Rules {
         return Optional.empty();
     }
 
+    private Optional splitHand(List<Card> hand, Deck deck){
+        Player split1 = new Player(0);
+        Player split2 = new Player(0);
+        List<Player> splits = Arrays.asList(split1, split2);
+        int start = 0;
+        for(Player split : splits){
+            split.deal(hand.subList(start,start + 1));
+            split.deal(deck.draw(1));
+            start++;
+        }
+        Optional firstHand = askPlayer(split1, deck);
+        Optional secondHand = askPlayer(split2, deck);
+        if(firstHand == Optional.empty() || firstHand.get() < secondHand.get()){
+
+        }
+        return Optional.empty();
+    }
+
     private Optional askPlayer(Player player, Deck deck) {
         int score = scoreHand(player.getHand());
         if (score > 21) {
             return Optional.empty();
+        }
+        List<Card> hand = player.getHand();
+        if(hand.size() == 2 && hand.get(0).getValue() == hand.get(1).getValue()){
+            System.out.println("Would you like to split your hand?");
+            boolean split = (sc.next().equals("yes"));
+            if(split){
+                player.bet(2 * player.getBet());
+                return splitHand(hand, deck);
+            }
         }
         System.out.println("Would you like to hit or stay?");
         String decision = sc.next();
