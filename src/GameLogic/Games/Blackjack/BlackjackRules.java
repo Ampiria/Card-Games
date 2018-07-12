@@ -130,7 +130,7 @@ public class BlackjackRules implements Rules {
         dealToAll(players, deck);
     }
 
-    private Optional actOnDecision(Player player, Deck deck, String decision, int score) {
+    private Optional<Integer> actOnDecision(Player player, Deck deck, String decision, int score) {
         decision = decision.toLowerCase();
         switch (decision) {
             case "hit":
@@ -145,7 +145,7 @@ public class BlackjackRules implements Rules {
         return Optional.empty();
     }
 
-    private Optional splitHand(List<Card> hand, Deck deck){
+    private Optional<Integer> splitHand(List<Card> hand, Deck deck) {
         Player split1 = new Player(0);
         Player split2 = new Player(0);
         List<Player> splits = Arrays.asList(split1, split2);
@@ -155,15 +155,15 @@ public class BlackjackRules implements Rules {
             split.deal(deck.draw(1));
             start++;
         }
-        Optional firstHand = askPlayer(split1, deck);
-        Optional secondHand = askPlayer(split2, deck);
-        if(firstHand == Optional.empty() || firstHand.get() < secondHand.get()){
-
+        Optional<Integer> firstHand = askPlayer(split1, deck);
+        Optional<Integer> secondHand = askPlayer(split2, deck);
+        if (!firstHand.isPresent() || (secondHand.isPresent() && (firstHand.get() < secondHand.get()))) {
+            return secondHand;
         }
-        return Optional.empty();
+        return firstHand;
     }
 
-    private Optional askPlayer(Player player, Deck deck) {
+    private Optional<Integer> askPlayer(Player player, Deck deck) {
         int score = scoreHand(player.getHand());
         if (score > 21) {
             return Optional.empty();
